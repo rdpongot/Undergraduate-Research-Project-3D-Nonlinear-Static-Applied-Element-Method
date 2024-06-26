@@ -1,0 +1,383 @@
+  .--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+   ____                            ______ __  __ 
+  / __ \                     /\   |  ____|  \/  |
+ | |  | |_ __   ___ _ __    /  \  | |__  | \  / |
+ | |  | | '_ \ / _ \ '_ \  / /\ \ |  __| | |\/| |
+ | |__| | |_) |  __/ | | |/ ____ \| |____| |  | |
+  \____/| .__/ \___|_| |_/_/    \_\______|_|  |_|  v.0.9 private build
+        | |                                      
+        |_|                                      
+
+
+C++ Program prepared by Ronn Vincent D. Pongot
+for the University of the Philippines - Institute of Civil Engineering
+
+CE 199 - Undergraduate Research Project (2nd Semester, AY 2023-2024)
+Advised by Dr. Pher Errol Quinay
+
+  .--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+
+
+  __  __           _      _   _____                               _                
+ |  \/  |         | |    | | |  __ \                             | |               
+ | \  / | ___   __| | ___| | | |__) |_ _ _ __ __ _ _ __ ___   ___| |_ ___ _ __ ___ 
+ | |\/| |/ _ \ / _` |/ _ \ | |  ___/ _` | '__/ _` | '_ ` _ \ / _ \ __/ _ \ '__/ __|
+ | |  | | (_) | (_| |  __/ | | |  | (_| | | | (_| | | | | | |  __/ ||  __/ |  \__ \
+ |_|  |_|\___/ \__,_|\___|_| |_|   \__,_|_|  \__,_|_| |_| |_|\___|\__\___|_|  |___/
+                                                                                   
+                                                                                  
+
+  .--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+
+* Instructions found at the bottom of the file *
+
+* FORMAT OF COMMAND *
+1. COMMAND_NAME
+2. Ordered list of all variables (order is important; only value to the right of '=' equals sign will be read; do not add spaces or commas to the number inputs)
+3. Closing curly bracket
+
+START
+
+MATERIAL concrete{
+
+	1. E (MPa) = 20000
+	2. nu = 0.20
+	3. compressive strength (MPa) = 21
+	4. tensile yield / ultimate strength (MPa) = 2.1
+	
+	5. brittle or ductile? = 0
+	(0-brittle, 1-ductile)
+	
+	6. nonlinear implementation = 0
+	(0-concrete, 1-steel, 2-generic)	
+
+}
+
+MATERIAL steel{
+
+	1. E (MPa) = 200000
+	2. nu = 0.30
+	3. compressive strength (MPa) = 400
+	4. tensile yield / ultimate strength (MPa) = 400
+	
+	5. brittle or ductile? = 1
+	(0-brittle, 1-ductile)
+	
+	6. nonlinear implementation = 1
+	(0-concrete, 1-steel, 2-generic)	
+
+}
+
+PRIMARY_GEOMETRY beam{
+
+Draw the geometry by coordinates (mm)
+	1. xbound1 = 0
+	2. xbound2 = 4000
+	3. ybound1 = 0
+	4. ybound2 = 400
+	5. zbound1 = 0
+	6. zbound2 = 750
+
+Define the mesh
+	7. number of elements along x = 20
+	8. number of elements along y = 4
+	9. number of elements along z = 8
+
+Define the number of springs per face
+	10. number of springs on x face = 4
+	11. number of springs on y face = 4
+	12. number of springs on z face = 4
+(for example: if springs_x is 4, there will be 16 springs on the element face normal to the axis)
+
+Define the material group
+	13. material group (0, 1, 2, ..., no. of materials defined) = 0
+	
+}
+
+PRIMARY_GEOMETRY sample_to_interface{
+
+Draw the geometry by coordinates (mm)
+	1. xbound1 = 3000
+	2. xbound2 = 4000
+	3. ybound1 = -100
+	4. ybound2 = 500
+	5. zbound1 = 750
+	6. zbound2 = 1250
+
+Define the mesh
+	7. number of elements along x = 10
+	8. number of elements along y = 6
+	9. number of elements along z = 5
+
+Define the number of springs per face
+	10. number of springs on x face = 4
+	11. number of springs on y face = 4
+	12. number of springs on z face = 4
+(for example: if springs_x is 4, there will be 16 springs on the element face normal to the axis)
+
+Define the material group
+	13. material group (0, 1, 2, ..., no. of materials defined) = 0
+	
+}
+
+SECONDARY_GEOMETRY sample_steel_plane{
+
+*no new materials will be drawn, only the springs affected by the selection will be changed
+*in order to see the springs affected, go to program_parameters.txt and make a PRINT data point for (material: selected, condition: -1 (all))
+
+tip: you can overshoot the selection bounds and the program will handle the selection regularly
+	1. x_coord1 = -10000
+	2. x_coord2 = 10000
+	3. y_coord1 = -1000
+	4. y_coord2 = 1000
+	5. z_coord1 = 1000
+	6. z_coord2 = 1100
+
+	7. material group = 1
+
+}
+
+REINFORCEMENT_BARS rebar_sample_layer{
+
+specify the entire bounds covered by the rebars (program will automatically handle the spacing between bars)
+
+	1. x_coord1 = 0
+	2. x_coord2 = 4000
+	3. y_coord1 = 40
+	4. y_coord2 = 360
+	5. z_coord1 = 671
+	6. z_coord2 = 699
+
+	7. bar_size = 28
+
+	axis along the bars' length (x - 0, y - 1, z - 2)
+	8. run_direction = 0
+
+	axis parallel to the spacings between bars (x - 0, y - 1, z - 2)
+	9. spacing_direction = 1
+
+	10. number_of_bars = 4
+	11. material group = 1
+
+}
+
+STIRRUPS stirrups_sample{
+
+	1. x_coord1 = 0
+	2. x_coord2 = 4000
+	3. y_coord1 = 28
+	4. y_coord2 = 372
+	5. z_coord1 = 659
+	6. z_coord2 = 711
+	
+	7. bar_size (mm) = 12
+
+	axis where the stirrup runs, usually the same as rebars (x - 0, y - 1, z - 2)
+	8. run_direction = 0
+
+	9. number_of_stirrups = 8
+	10. material_group = 1
+
+}
+
+INTERFACE geometry_1_to_geometry_2{
+
+Input the PRIMARY_GEOMETRY groups that you will join together (they have to be touching)
+NOTE: the index starts from 0 (zero) so your first PRIMARY_GEOMETRY entry is 0, second PRIMARY_GEOMETRY is 1, etc.
+
+	1. PRIMARY_GEOMETRY mesh_to_join_1  = 0
+	2. PRIMARY_GEOMETRY mesh_to_join_2 = 1
+	3. Which material group to use for spring connections? = 0
+
+
+}
+
+ANALYZE{
+
+Set a selection (point, line, plane, or volume) to print in a separate ANALYZE.csv file
+	1. x1 = 4000
+	2. x2 = 4000
+	3. y1 = 0
+	4. y2 = 400
+	5. z1 = 0
+	6. z2 = 750
+	7. dof (-1 if all dofs) = -1
+
+}
+
+
+SUPPORT roller {
+
+If you want to simplify the range into two dimensions, one dimension, or a point, equate the two ends to each other
+
+	1. x_coord1 = 1000
+	2. x_coord2 = 1000
+	3. y_coord1 = 0
+	4. y_coord2 = 400
+	5. z_coord1 = 0
+	6. z_coord2 = 0
+
+	7. restrain ux (0 - no, 1 - yes) = 0
+	8. restrain uy (0 - no, 1 - yes) = 0
+	9. restrain uz (0 - no, 1 - yes) = 1
+	10. restrain thetax (0 - no, 1 - yes) = 0
+	11. restrain thetay (0 - no, 1 - yes) = 0
+	12. restrain thetaz (0 - no, 1 - yes) = 0
+
+}
+
+
+SUPPORT pin{
+
+If you want to simplify the range into two dimensions, one dimension, or a point, equate the two ends to each other
+
+	1. x_coord1 = 0
+	2. x_coord2 = 0
+	3. y_coord1 = 0
+	4. y_coord2 = 400
+	5. z_coord1 = 0
+	6. z_coord2 = 0
+
+	7. restrain ux (0 - no, 1 - yes) = 1
+	8. restrain uy (0 - no, 1 - yes) = 1
+	9. restrain uz (0 - no, 1 - yes) = 1
+	10. restrain thetax (0 - no, 1 - yes) = 0
+	11. restrain thetay (0 - no, 1 - yes) = 0
+	12. restrain thetaz (0 - no, 1 - yes) = 0
+
+}
+
+
+POINT_LOAD point load at sample_2 geometry{
+
+	1. x_coord = 4000
+	2. y_coord = 300
+	3. z_coord = 1250
+
+	Note: this can be a negative value
+	4. force magnitude (N) = -4000
+
+	(Fx - 0, Fy - 1, Fz - 2, Mx - 3, My - 4, Mz - 5)
+	5. force_dof = 2
+
+}
+
+DIST_LOAD sample_line_load{
+
+	1. x_coord1 = 0
+	2. x_coord2 = 2000
+	3. y_coord1 = 0
+	4. y_coord2 = 400
+	5. z_coord1 = 750
+	6. z_coord2 = 750
+
+	7. force magnitude = -0.072625
+	Tip: You can "distribute" a point load as follows: point_load [N] / beam width [mm]
+	Note: this can be a negative value for downward forces
+
+	8. force_dof = 2
+	(Fx - 0, Fy - 1, Fz - 2, Mx - 3, My - 4, Mz - 5)
+
+	(0 - no, 1 - from 0 to w, 2 - from w to 0)
+	9. triangular load? = 0
+	
+	Unit guide (convert to N and mm before inputting data here):
+	N/mm <-> kN/m
+	N/mm^2 <-> kN/m^2 / 1000
+	N/mm^3 <-> kN/m^3 / 1000000
+
+}
+
+SELF_WEIGHT sample self weight{
+
+	1. x_coord1 = 0
+	2. x_coord2 = 4000
+	3. y_coord1 = 0
+	4. y_coord2 = 400
+	5. z_coord1 = 0
+	6. z_coord2 = 750
+	7. force magnitude (N/mm^3) = -0.000001
+	8. force_dof = 2
+
+}
+
+
+END
+
+
+command format:
+(1) call the command function
+(2) input the ordered data as "variable = value"
+(3) end with a curly bracket
+(4) multiple commands of the same type is allowed
+(5) commands can be named but separated with a whitespace
+
+(!!!) Don't delete any data-input or reshuffle the orders of data inside the curly brackets
+(!!!) Only one equal sign per line
+(!!!) Don't add spaces or commas to number inputs
+
+NOTICE:
+1. All forces in N (Newtons). All measurements in mm (millimeters). UNLESS otherwise stated.
+2. Current build is for analysis up to nonlinear 3D static only.
+
+KNOWN COMMANDS:
+
+*START - starts the reading of data (does not require the ending bracket)
+*MATERIAL(6 data points)- contains the general data
+*PRIMARY_GEOMETRY(13 data points) - draws a mesh and initializes the springs based on a specified material
+*SECONDARY_GEOMETRY(7 data points) - selects all the springs within the bounds and changes the material properties of the affected springs
+*REINFORCEMENT_BARS(11 data points) - special kind of *SECONDARY_GEOMETRY where the bounds are broken up at regular spacing intervals
+*STIRRUPS(10 data points) - special kind of *SECONDARY_GEOMETRY where the bounds are broken up at regular spacing intervals and the selection is void in the middle
+*INTERFACE(3 data points) - connect two *GEOMETRY instances by springs
+*ANALYZE(6 data points) - specify the bounds that contains the elements that the validation.txt file will print
+*SUPPORT(12 data points) - specify restricted DOFs
+*POINT_LOAD(5 data points) - specify a singular point load
+*DIST_LOAD(9 data points) - specify a 1D, 2D, or 3D loading distribution that will be distributed to element centroids
+*SELF_WEIGHT(8 data points) - special kind of 3D loading that is constant throughout non-linear load increments
+*END - ends the reading of data (does not require the ending bracket)
+
+
+  .--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+
+
+
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣠⣤⣴⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣦⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⠿⠛⠛⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠙⠛⠻⢿⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⡿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢀⣼⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣷⣄⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢀⣾⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣶⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣶⡀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣆⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣾⣟⣀⠀⠀⠀⠀⣀⣀⠀⠀⠀⢸⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⡇⠀⠀⢀⣄⠀⠀⠀⠀⣀⣹⣿⡆⠀⠀⠀⠀⠀
+⠀⠀⢀⣤⣾⡿⣿⣟⣿⣷⠀⠀⠀⣿⣿⣤⣤⣤⣼⣿⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣿⣧⣤⣤⣼⣿⠀⠀⠀⢸⣿⣻⣿⠿⣷⣦⣄⠀⠀
+⢀⣴⡿⠋⠁⠀⠙⢻⣿⡇⠀⠀⠀⣿⡟⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⢹⣿⠀⠀⠀⠈⣿⣿⠋⠀⠀⠙⢿⣷⣄
+⣿⣿⣶⣦⠀⠀⢠⣿⣿⠅⠀⠀⠀⣿⡇⠀⣠⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣤⠀⠘⣿⡇⠀⠀⠀⣿⣿⣆⠀⠀⢰⣶⣿⣿
+⠀⠀⣿⡇⢀⣴⣿⢿⣿⡄⠀⠀⠀⣿⡇⠀⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⠀⠀⣿⣷⠀⠀⠀⢻⣿⢿⣧⡀⠘⣿⠃⠀
+⠀⠀⣿⣷⣿⣿⠁⣸⣿⠇⠀⠀⠀⣿⡇⠀⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⠀⠀⣿⡇⡄⠀⠀⢸⣿⠈⣿⣿⣶⣿⠇⠀
+⠀⠀⠘⠉⢸⣿⠀⣿⡟⢰⠀⠀⠀⣿⡇⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠀⠀⣿⡇⢡⠀⠀⠸⣿⡄⢸⣿⠈⠉⠀⠀
+⠀⠀⠀⠀⣼⡟⠀⣿⡇⠸⠀⠀⠀⣿⡇⠀⠀⠀⠀⠀⠀⠀⢀⣤⣄⣀⣤⡄⠀⠀⠀⠀⠀⠀⠀⢠⣿⡇⠀⡄⠀⠘⣿⡇⢸⣿⡀⠀⠀⠀
+⠀⠀⠀⠀⣿⡇⢠⣿⡇⠀⣆⠀⠀⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠛⠁⠀⠀⠀⠀⠀⠀⠀⢸⣿⡇⠀⢡⡀⠀⣿⣇⠈⣿⡇⠀⠀⠀
+⠀⠀⠀⢸⣿⠃⢸⣿⣶⡿⣿⣆⠀⣿⣿⣤⣤⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣤⣤⣾⣿⠀⣠⣿⣿⣷⣿⣿⠀⣿⣧⠀⠀⠀
+⠀⠀⠀⣼⣿⠀⠘⠛⠉⠀⢿⣿⣷⣿⣿⣿⠉⠛⠛⠛⠻⣿⣿⠿⠿⠿⠿⣿⣿⡿⠛⠛⠛⠛⢹⣿⣿⣴⣿⡿⠃⠈⠙⠛⠀⢸⣿⠀⠀⠀
+⠀⠀⢠⣿⡇⠀⠀⠀⠀⠀⢀⣨⣿⠟⣿⣿⣶⣦⣤⣄⣀⡈⠻⣷⣄⢠⣾⡿⠋⣀⣀⣠⣤⣶⣾⣿⡟⣿⣧⡀⠀⠀⠀⠀⠀⠘⣿⡇⠀⠀
+⠀⠀⢸⣿⠁⠀⢀⡀⡠⠒⣱⣿⠏⠀⣿⡇⠈⠉⠙⠛⠻⠿⠿⢿⣿⣿⣿⡿⠿⠿⠛⠛⠉⠉⠈⣿⡇⠘⣿⣯⠒⢄⣀⣀⠀⠀⢻⣷⠀⠀
+⠀⢀⣿⣇⣤⣶⣿⡿⠀⣠⣿⠏⠀⢸⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣧⠀⠘⣿⣧⠀⢸⣿⣷⣤⣜⣿⡇⠀
+⠀⠈⠛⠛⠋⢉⣿⠇⢠⣿⠟⠀⠀⣸⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⠀⠀⠘⣿⣧⠀⣿⡯⠉⠛⠋⠁⠀
+⠀⠀⠀⠀⠀⢸⣿⣠⣿⡟⠒⠤⢀⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠼⣿⣄⠤⠔⠚⣿⣆⣹⣿⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠙⠛⠟⣿⣿⣶⣤⣤⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠴⠊⠁⠀⣿⣧⣤⣴⣾⣿⠟⠛⠛⠁⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⣿⣇⠈⢩⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠔⠁⠀⠀⠀⠀⣿⣿⣏⠉⢈⣿⡇⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⠿⠿⣻⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠧⣀⣀⡀⣀⣀⣀⣹⣿⠻⠿⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠀⢸⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣏⠐⠠⢄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡠⠤⠒⢉⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⣷⣦⣄⣀⡈⠉⠁⠐⠒⠒⠒⠒⠒⠒⠒⠀⠉⢁⣀⣀⣤⣶⡿⢿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⡟⠿⠿⣿⣿⣷⣶⣶⣶⣶⣶⣿⣿⡿⠿⠟⣿⣟⡁⠀⠈⠻⣷⣄⣀⣀⣀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣧⠀⠀⣿⡇⠀⠀⠀⠀⠀⠀⠀⣿⡇⠀⢰⣿⠿⢿⣷⣶⣴⡟⠛⠛⠛⠿⣿⣦⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⡀⠀⣿⡇⠀⠀⠀⠀⠀⠀⠀⣿⡇⠀⣾⣿⠁⠀⠀⢸⣿⠃⣼⣿⣿⠿⠿⠋⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣶⡿⠻⣿⣦⣿⡇⠀⠀⠀⠀⠀⠀⠀⣿⣧⣾⡟⠻⣷⣄⠀⢸⣿⣠⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠺⠿⠿⠿⠿⠿⠿⠇⠀⠀⠀⠀⠀⠀⠀⠿⠿⠿⠿⠿⠿⠿⠀⠈⠻⠿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀

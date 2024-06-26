@@ -1,0 +1,191 @@
+  .--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+   ____                            ______ __  __ 
+  / __ \                     /\   |  ____|  \/  |
+ | |  | |_ __   ___ _ __    /  \  | |__  | \  / |
+ | |  | | '_ \ / _ \ '_ \  / /\ \ |  __| | |\/| |
+ | |__| | |_) |  __/ | | |/ ____ \| |____| |  | |
+  \____/| .__/ \___|_| |_/_/    \_\______|_|  |_|  v.0.9 private build
+        | |                                      
+        |_|                                      
+
+
+C++ Program prepared by Ronn Vincent D. Pongot
+for the University of the Philippines - Institute of Civil Engineering
+
+CE 199 - Undergraduate Research Project (2nd Semester, AY 2023-2024)
+Advised by Dr. Pher Errol Quinay
+
+  .--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+
+
+  _____                                       _____                               _                
+ |  __ \                                     |  __ \                             | |               
+ | |__) | __ ___   __ _ _ __ __ _ _ __ ___   | |__) |_ _ _ __ __ _ _ __ ___   ___| |_ ___ _ __ ___ 
+ |  ___/ '__/ _ \ / _` | '__/ _` | '_ ` _ \  |  ___/ _` | '__/ _` | '_ ` _ \ / _ \ __/ _ \ '__/ __|
+ | |   | | | (_) | (_| | | | (_| | | | | | | | |  | (_| | | | (_| | | | | | |  __/ ||  __/ |  \__ \
+ |_|   |_|  \___/ \__, |_|  \__,_|_| |_| |_| |_|   \__,_|_|  \__,_|_| |_| |_|\___|\__\___|_|  |___/
+                   __/ |                                                                           
+                  |___/                                                                            
+
+  .--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+
+* Instructions found at the bottom of the file *
+
+* FORMAT OF COMMAND *
+1. COMMAND_NAME
+2. Ordered list of all variables (order is important; only value to the right of '=' equals sign will be read; do not add spaces or commas to the number inputs)
+3. Closing curly bracket
+
+START
+
+PARAMETERS program{
+
+1. load_increment_count = 1
+2. load_increment_start = 1
+3. Number of threads (usual: number of cores) = 1
+4. Matrix Solver (0 - SparseLU, 1 - BiCGSTAB) = 0
+5. Allow failure of springs (0 - no, 1 - yes) = 1
+6. RAM_safety_override = 0
+
+}
+
+PRINT files{
+
+0 - don't print, 1 - print
+
+files that are printed only once at the start of the run:
+1. troubleshooting.txt = 0
+2. pdof.csv = 0
+3. fdof.csv = 0
+4. support.csv = 0
+5. force.csv (coordinates) = 0
+6. force2.csv (dofs) = 1
+7. element_initial.csv = 0
+8. spring.csv (LARGE FILE) = 0
+
+files that are printed for each load increment:
+9. Kff.txt (LARGE FILE!!!) = 0
+10 Kpf.txt (LARGE FILE!!!) = 0
+11. U.csv = 1
+12. F.csv = 1
+13. element.csv = 0
+14. spring.csv (LARGE FILE) = 0
+15. spring_cracked.csv = 1
+16. validation.csv (this is connected to ANALYZE) = 1
+
+.vtk files to open in ParaView
+17. element.vtk = 1
+18. spring.vtk (LARGE FILE, can lag your ParaView) = 0
+
+//~~~~~~~~~~~~
+
+From here onwards, you can add your own entries (syntax: equals sign before the number, separate by newlines)
+
+filtered_spring.vtk format:
+write in pairs
+first number - material group index (-1 to select all materials)
+second number - spring condition (-1 - all conditions, 0 - elastic, 1 - failed, 2 - yielded)
+
+19. spring steel (material group index) = 1
+20. spring steel get all = -1
+21. spring steel = 1
+22. spring steel get yielded = 2
+23. spring concrete = 0
+24. spring concrete get cracked = 1
+
+}
+
+AUTOMATE {
+
+//this overrides the given number of elements along certain axis from model_parameters.txt
+
+1. automate? = 0 
+2. which axis to automate (0, 1, 2)? = 0
+3. starting number of elements = 10
+4. ending number of elements = 100
+5. step interval = 10
+
+}
+
+//developmental features - see source code before using
+
+SPECIAL {
+
+//this reverses the incrementing after a certain point (e.g. 1 -> 2 -> 3 -> 4 -> 3 -> 2)
+
+1. use peak_load_increment? = 0
+2. peak_load_increment = 1
+
+//this resets the load incrementing after a certain point (e.g. 1 -> 2 -> 3 -> 4 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6)
+
+3. use crack_reset? = 0
+4. crack_reset_increment = 1
+
+}
+
+END
+
+command format:
+(1) call the command function
+(2) input the ordered data as "variable = value"
+(3) end with a curly bracket
+(4) multiple commands of the same type is allowed
+(5) commands can be named but separated with a whitespace
+
+(!!!) Don't delete any data-input or reshuffle the orders of data inside the curly brackets
+(!!!) Only one equal sign per line
+(!!!) Don't add spaces or commas to number inputs
+
+NOTICE:
+1. All forces in N (Newtons). All measurements in mm (millimeters). UNLESS otherwise stated.
+2. Current build is for analysis up to nonlinear 3D static only.
+
+*START - starts the reading of data (does not require the ending bracket)
+*PARAMETERS(5 data points) - input settings
+*PRINT(19 + 2n data points) - specify which files to print
+*AUTOMATE(5 data points)
+*END - ends the reading of data (does not require the ending bracket)
+
+  .--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+
+
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣠⣤⣴⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣦⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⠿⠛⠛⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠙⠛⠻⢿⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⡿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢀⣼⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣷⣄⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢀⣾⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣶⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣶⡀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣆⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣾⣟⣀⠀⠀⠀⠀⣀⣀⠀⠀⠀⢸⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⡇⠀⠀⢀⣄⠀⠀⠀⠀⣀⣹⣿⡆⠀⠀⠀⠀⠀
+⠀⠀⢀⣤⣾⡿⣿⣟⣿⣷⠀⠀⠀⣿⣿⣤⣤⣤⣼⣿⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣿⣧⣤⣤⣼⣿⠀⠀⠀⢸⣿⣻⣿⠿⣷⣦⣄⠀⠀
+⢀⣴⡿⠋⠁⠀⠙⢻⣿⡇⠀⠀⠀⣿⡟⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⢹⣿⠀⠀⠀⠈⣿⣿⠋⠀⠀⠙⢿⣷⣄
+⣿⣿⣶⣦⠀⠀⢠⣿⣿⠅⠀⠀⠀⣿⡇⠀⣠⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣤⠀⠘⣿⡇⠀⠀⠀⣿⣿⣆⠀⠀⢰⣶⣿⣿
+⠀⠀⣿⡇⢀⣴⣿⢿⣿⡄⠀⠀⠀⣿⡇⠀⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⠀⠀⣿⣷⠀⠀⠀⢻⣿⢿⣧⡀⠘⣿⠃⠀
+⠀⠀⣿⣷⣿⣿⠁⣸⣿⠇⠀⠀⠀⣿⡇⠀⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⠀⠀⣿⡇⡄⠀⠀⢸⣿⠈⣿⣿⣶⣿⠇⠀
+⠀⠀⠘⠉⢸⣿⠀⣿⡟⢰⠀⠀⠀⣿⡇⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠀⠀⣿⡇⢡⠀⠀⠸⣿⡄⢸⣿⠈⠉⠀⠀
+⠀⠀⠀⠀⣼⡟⠀⣿⡇⠸⠀⠀⠀⣿⡇⠀⠀⠀⠀⠀⠀⠀⢀⣤⣄⣀⣤⡄⠀⠀⠀⠀⠀⠀⠀⢠⣿⡇⠀⡄⠀⠘⣿⡇⢸⣿⡀⠀⠀⠀
+⠀⠀⠀⠀⣿⡇⢠⣿⡇⠀⣆⠀⠀⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠛⠁⠀⠀⠀⠀⠀⠀⠀⢸⣿⡇⠀⢡⡀⠀⣿⣇⠈⣿⡇⠀⠀⠀
+⠀⠀⠀⢸⣿⠃⢸⣿⣶⡿⣿⣆⠀⣿⣿⣤⣤⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣤⣤⣾⣿⠀⣠⣿⣿⣷⣿⣿⠀⣿⣧⠀⠀⠀
+⠀⠀⠀⣼⣿⠀⠘⠛⠉⠀⢿⣿⣷⣿⣿⣿⠉⠛⠛⠛⠻⣿⣿⠿⠿⠿⠿⣿⣿⡿⠛⠛⠛⠛⢹⣿⣿⣴⣿⡿⠃⠈⠙⠛⠀⢸⣿⠀⠀⠀
+⠀⠀⢠⣿⡇⠀⠀⠀⠀⠀⢀⣨⣿⠟⣿⣿⣶⣦⣤⣄⣀⡈⠻⣷⣄⢠⣾⡿⠋⣀⣀⣠⣤⣶⣾⣿⡟⣿⣧⡀⠀⠀⠀⠀⠀⠘⣿⡇⠀⠀
+⠀⠀⢸⣿⠁⠀⢀⡀⡠⠒⣱⣿⠏⠀⣿⡇⠈⠉⠙⠛⠻⠿⠿⢿⣿⣿⣿⡿⠿⠿⠛⠛⠉⠉⠈⣿⡇⠘⣿⣯⠒⢄⣀⣀⠀⠀⢻⣷⠀⠀
+⠀⢀⣿⣇⣤⣶⣿⡿⠀⣠⣿⠏⠀⢸⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣧⠀⠘⣿⣧⠀⢸⣿⣷⣤⣜⣿⡇⠀
+⠀⠈⠛⠛⠋⢉⣿⠇⢠⣿⠟⠀⠀⣸⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⠀⠀⠘⣿⣧⠀⣿⡯⠉⠛⠋⠁⠀
+⠀⠀⠀⠀⠀⢸⣿⣠⣿⡟⠒⠤⢀⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠼⣿⣄⠤⠔⠚⣿⣆⣹⣿⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠙⠛⠟⣿⣿⣶⣤⣤⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠴⠊⠁⠀⣿⣧⣤⣴⣾⣿⠟⠛⠛⠁⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⣿⣇⠈⢩⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠔⠁⠀⠀⠀⠀⣿⣿⣏⠉⢈⣿⡇⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⠿⠿⣻⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠧⣀⣀⡀⣀⣀⣀⣹⣿⠻⠿⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠀⢸⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣏⠐⠠⢄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡠⠤⠒⢉⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⣷⣦⣄⣀⡈⠉⠁⠐⠒⠒⠒⠒⠒⠒⠒⠀⠉⢁⣀⣀⣤⣶⡿⢿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⡟⠿⠿⣿⣿⣷⣶⣶⣶⣶⣶⣿⣿⡿⠿⠟⣿⣟⡁⠀⠈⠻⣷⣄⣀⣀⣀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣧⠀⠀⣿⡇⠀⠀⠀⠀⠀⠀⠀⣿⡇⠀⢰⣿⠿⢿⣷⣶⣴⡟⠛⠛⠛⠿⣿⣦⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⡀⠀⣿⡇⠀⠀⠀⠀⠀⠀⠀⣿⡇⠀⣾⣿⠁⠀⠀⢸⣿⠃⣼⣿⣿⠿⠿⠋⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣶⡿⠻⣿⣦⣿⡇⠀⠀⠀⠀⠀⠀⠀⣿⣧⣾⡟⠻⣷⣄⠀⢸⣿⣠⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠺⠿⠿⠿⠿⠿⠿⠇⠀⠀⠀⠀⠀⠀⠀⠿⠿⠿⠿⠿⠿⠿⠀⠈⠻⠿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀
